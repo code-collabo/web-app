@@ -1,6 +1,9 @@
 import { Request, Response } from 'express';
 import { port } from './variables';
 import { requestsHelpInfo } from '../info/info.requests';
+import { UserDocument } from '../api/models/user.model';
+import { superAdminData } from './variables';
+import { createSuperAdminService, getSuperAdminUserService } from '../api/services/users.service';
 
 interface URLs {
   api: {
@@ -41,4 +44,31 @@ export const idDoesNotExist = ({ req, res, item, statusCode, message } : { req: 
       POST: requests.POST,
     }
   });
+}
+
+
+export const checkSubset = (parentArray: string[], subsetArray: string[]) => {
+  return subsetArray.every((subsetElement) => {
+      return parentArray.includes(subsetElement)
+  })
+}
+
+export let superAdminExists = false;
+export const createSuperAdmin = async () => {
+  try{
+    const doc = await getSuperAdminUserService();
+    if(!doc){
+      const superAdminDoc = await createSuperAdminService(superAdminData as UserDocument);
+      if(superAdminDoc) console.log("admin user created successfully");
+      else console.log("error creating admin user");
+    }
+    else {
+      console.log("admin user already exists in the database");
+    }
+    superAdminExists = true;
+  }
+  catch(err) {
+    throw new Error(err);
+  }
+  
 }

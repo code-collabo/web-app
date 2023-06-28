@@ -1,9 +1,9 @@
 import { ProjectDocument, ProjectModel as Project } from '../models/project.model';
 
-const selectString = '_id title url issue img interest skills children';
+const selectString = '_id title url issue img interest skills children isArchived createdBy updatedBy createdAt updatedAt';
 
 
-export const createOneProjectService = async (requestBody: ProjectDocument): Promise<ProjectDocument> => {
+export const createOneProjectService = async (requestBody: ProjectDocument, user: string): Promise<ProjectDocument> => {
 
   const project = new Project({
     title: requestBody.title,
@@ -13,6 +13,8 @@ export const createOneProjectService = async (requestBody: ProjectDocument): Pro
     interest: requestBody.interest,
     skills: requestBody.skills,
     children: requestBody.children,
+    createdBy: user,
+    updatedBy: user,
   });
   const save = await project.save();
   return save;
@@ -34,7 +36,7 @@ export const getOneProjectService = async (paramsId: string) => {
   return query;
 }
 
-export const updateOneProjectService = async (paramsId: string, requestBody: ProjectDocument) => {
+export const updateOneProjectService = async (paramsId: string, requestBody: ProjectDocument, user: string) => {
   const query = await Project.findOne({ _id: paramsId }).exec();
   const project = query as ProjectDocument;
 
@@ -45,6 +47,7 @@ export const updateOneProjectService = async (paramsId: string, requestBody: Pro
   if(requestBody.interest) project.interest = requestBody.interest;
   if(requestBody.skills) project.skills = requestBody.skills;
   if(requestBody.children) project.children = requestBody.children;
+  project.updatedBy = user;
 
   const save = project.save();
   return save;
